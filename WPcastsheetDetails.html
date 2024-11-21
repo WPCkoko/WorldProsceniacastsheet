@@ -182,6 +182,16 @@
             categories.forEach(updateRank);
             setupMainSheetCommunication();
             loadSavedEntries();
+
+            // Listen for storage events to keep display in sync
+            window.addEventListener('storage', function(e) {
+                if (e.key === 'detailPoints') {
+                    const display = document.getElementById('detailPointsDisplay');
+                    if (display) {
+                        display.textContent = e.newValue;
+                    }
+                }
+            });
         });
 
         // Function to spend detail points and update rank
@@ -386,9 +396,12 @@
                 mainSheetData = data.character;
                 updateAspectModifiers();
             } else if (data.type === 'detailPointsUpdate') {
-                // Update detail points when received from main sheet
+                // Update detail points display immediately when message is received
+                const display = document.getElementById('detailPointsDisplay');
+                if (display) {
+                    display.textContent = data.points;
+                }
                 localStorage.setItem('detailPoints', data.points);
-                updateDetailPointsDisplay();
                 showToast('Detail Points Updated!', 2000, 'emerald');
             }
         }
