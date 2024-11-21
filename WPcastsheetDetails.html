@@ -167,13 +167,29 @@
             </div>
             <div id="entropii-entries" class="space-y-4"></div>
         </div>
+
+        <div id="passive-section" class="category-section">
+            <div class="flex justify-between items-center mb-4">
+                <div class="flex items-center">
+                    <h2 class="text-2xl font-bold text-gray-400">Passive</h2>
+                    <div class="ml-4 px-3 py-1 bg-gray-700 rounded-full">
+                        Rank: <span class="rank-value font-bold" data-category="passive">0</span>
+                    </div>
+                </div>
+                <button class="add-action bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition-colors flex items-center">
+                    <i class="fas fa-plus mr-2"></i>
+                    Add Action (2 Points)
+                </button>
+            </div>
+            <div id="passive-entries" class="space-y-4"></div>
+        </div>
     </div>
 
     <script>
         // State management
         let mainSheetData = null;
         let detailPoints = 5;
-        const categories = ['engage', 'defend', 'maneuver', 'entropii'];
+        const categories = ['engage', 'defend', 'maneuver', 'entropii', 'passive'];
         
         // Initialize everything when the page loads
         document.addEventListener('DOMContentLoaded', function() {
@@ -252,7 +268,7 @@
         // Function to add a new action entry
         function addNewActionEntry(category) {
             const currentPoints = parseInt(localStorage.getItem('detailPoints') || '5');
-            const pointCost = 1; // Always costs 1 point to create an action
+            const pointCost = category === 'passive' ? 2 : 1; // Passive actions cost 2 points, others cost 1
 
             if (currentPoints < pointCost) {
                 alert('Not enough detail points available!');
@@ -582,6 +598,7 @@
             if (deleteBtn) {
                 deleteBtn.addEventListener('click', () => {
                     if (confirm('Are you sure you want to delete this action?')) {
+                        refundEntryPoints(entry, category); // Add refund before removal
                         entry.remove();
                         saveAllEntries();
                     }
@@ -630,10 +647,37 @@
             updateDetailPointsDisplay();
         }
 
+        // Function to refund points when removing an entry
+        function refundEntryPoints(entry, category) {
+            // Calculate base cost (2 for passive, 1 for others)
+            const baseCost = category === 'passive' ? 2 : 1;
+            
+            // Count additional costs (cues and effects)
+            const numCues = entry.querySelectorAll('.cue-select').length - 1; // -1 because first cue is free
+            const numEffects = entry.querySelectorAll('.effect-select').length - 2; // -2 because first two effects are free
+            
+            // Calculate total refund
+            const totalRefund = baseCost + Math.max(0, numCues) + Math.max(0, numEffects);
+            
+            // Update points in localStorage
+            const currentPoints = parseInt(localStorage.getItem('detailPoints') || '5');
+            const spentPoints = parseInt(localStorage.getItem(`${category}SpentPoints`) || '0');
+            
+            localStorage.setItem('detailPoints', currentPoints + totalRefund);
+            localStorage.setItem(`${category}SpentPoints`, Math.max(0, spentPoints - totalRefund));
+            
+            // Update displays
+            updateDetailPointsDisplay();
+            updateRank(category);
+            
+            // Show feedback
+            showToast(`Refunded ${totalRefund} points`, 2000, 'emerald');
+        }
+
         // Helper function to show toast messages
         function showToast(message, duration = 2000, type = 'emerald') {
             const toast = document.createElement('div');
-            toast.className = `toast fixed bottom-4 right-4 px-6 py-3 rounded shadow-lg text-white bg-${type}-600`;
+            toast.className = `toast fixed bottom-4 right-4 px-6 py-3 rounded-lg text-white bg-${type}-600`;
             toast.textContent = message;
             document.body.appendChild(toast);
             
