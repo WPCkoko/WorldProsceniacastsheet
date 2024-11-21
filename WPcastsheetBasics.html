@@ -1,0 +1,2698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WPC Character Sheet</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            transition: all 0.8s ease;
+            position: relative;
+        }
+
+        body.last-acts-active {
+            background: #140a0a;
+            animation: darkPulse 4s infinite;
+        }
+
+        @keyframes darkPulse {
+            0%, 100% { background: #140a0a; }
+            50% { background: #1f0f0f; }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            transition: all 0.8s ease;
+        }
+
+        header {
+            background: linear-gradient(to right, #1e293b, #334155);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .header-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .character-info-section {
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 0.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+
+        .character-info-header {
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(30, 41, 59, 0.8);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .character-info-header:hover {
+            background: rgba(30, 41, 59, 0.9);
+        }
+
+        .character-info-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            padding: 0 1.5rem;
+        }
+
+        .character-info-content.expanded {
+            max-height: 1000px;
+            padding: 1.5rem;
+        }
+
+        .expand-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .expand-icon.expanded {
+            transform: rotate(180deg);
+        }
+
+        .character-info-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .character-info-input {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            color: #f8fafc;
+            width: 100%;
+            transition: border-color 0.2s ease;
+        }
+
+        .character-info-input:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.3);
+            background: rgba(30, 41, 59, 0.7);
+        }
+
+        .character-info-label {
+            display: block;
+            font-size: 0.875rem;
+            color: #94a3b8;
+            margin-bottom: 0.5rem;
+        }
+
+        textarea.character-info-input {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .character-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-item {
+            background: rgba(30, 41, 59, 0.5);
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #94a3b8;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-value {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #f8fafc;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .action-buttons button,
+        .action-buttons label {
+            min-width: 140px;
+            transition: all 0.2s ease;
+            transform: translateY(0);
+        }
+
+        .action-buttons button:hover,
+        .action-buttons label:hover {
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            header {
+                padding: 1.5rem;
+            }
+
+            .character-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .action-buttons button,
+            .action-buttons label {
+                width: 100%;
+            }
+        }
+
+        .section {
+            transition: all 0.3s ease;
+            background-color: #2a2a2a;
+        }
+        .section:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        }
+        .aspect-input {
+            width: 60px;
+            text-align: center;
+            background-color: #333;
+            color: white;
+            border: 1px solid #444;
+            border-radius: 4px;
+            padding: 4px;
+        }
+        .aspect-input:focus {
+            outline: none;
+            border-color: #666;
+        }
+        .resource-bar {
+            height: 24px;
+            background-color: #333;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .resource-bar-fill {
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+        .presence-fill {
+            background-color: #4f46e5;
+        }
+        .influence-fill {
+            background-color: #059669;
+        }
+        /* Toast Notification Styles */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            background-color: #4f46e5;
+            color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            z-index: 100;
+            opacity: 0;
+            transform: translateY(1rem);
+            transition: all 0.3s ease;
+        }
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @keyframes criticalSuccess {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes criticalFailure {
+            0% { transform: scale(1) rotate(0deg); }
+            25% { transform: scale(1.1) rotate(-5deg); }
+            75% { transform: scale(1.1) rotate(5deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        .critical-success {
+            animation: criticalSuccess 0.6s ease;
+            color: #ffd700 !important; /* Golden color */
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .critical-failure {
+            animation: criticalFailure 0.6s ease;
+            color: #ff0000 !important;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+        }
+
+        .base-roll {
+            transition: all 0.3s ease;
+        }
+
+        .base-roll.critical {
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        /* Aspects Section Styles */
+        .aspects-section {
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 0.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+        }
+
+        .aspects-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .aspects-points {
+            background: rgba(30, 41, 59, 0.8);
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .aspects-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+
+        .aspects-category {
+            margin-bottom: 1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            text-align: center;
+            grid-column: 1 / -1;
+        }
+
+        .presence-category {
+            background: rgba(147, 51, 234, 0.1);
+            color: rgb(216, 180, 254);
+            border: 1px solid rgba(147, 51, 234, 0.2);
+        }
+
+        .influence-category {
+            background: rgba(16, 185, 129, 0.1);
+            color: rgb(110, 231, 183);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .aspect-item {
+            background: rgba(30, 41, 59, 0.3);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .aspect-item.presence {
+            background: rgba(147, 51, 234, 0.05);
+            border-color: rgba(147, 51, 234, 0.2);
+        }
+
+        .aspect-item.influence {
+            background: rgba(16, 185, 129, 0.05);
+            border-color: rgba(16, 185, 129, 0.2);
+        }
+
+        .aspect-item:hover {
+            background: rgba(30, 41, 59, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .aspect-item.presence:hover {
+            background: rgba(147, 51, 234, 0.1);
+        }
+
+        .aspect-item.influence:hover {
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .aspect-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .aspect-name {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #f8fafc;
+        }
+
+        .aspect-item.presence .aspect-name {
+            color: rgb(216, 180, 254);
+        }
+
+        .aspect-item.influence .aspect-name {
+            color: rgb(110, 231, 183);
+        }
+
+        .aspect-input {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.375rem;
+            padding: 0.5rem;
+            width: 70px;
+            color: #f8fafc;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .aspect-input:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.3);
+            background: rgba(30, 41, 59, 0.7);
+        }
+
+        .aspect-item.presence .aspect-input:focus {
+            border-color: rgba(147, 51, 234, 0.5);
+        }
+
+        .aspect-item.influence .aspect-input:focus {
+            border-color: rgba(16, 185, 129, 0.5);
+        }
+
+        .maimed-toggle:checked + .maimed-label::before {
+            background-color: #ef4444;
+            border-color: #ef4444;
+            box-shadow: 0 0 5px rgba(239, 68, 68, 0.5);
+        }
+
+        .maimed-label {
+            position: relative;
+            padding-left: 1.75rem;
+        }
+
+        .maimed-label::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 1.25rem;
+            height: 1.25rem;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 0.25rem;
+            transition: all 0.2s ease;
+        }
+
+        .maimed-toggle:checked + .maimed-label {
+            color: #ef4444;
+        }
+
+        .maimed-toggle:checked + .maimed-label::before {
+            background-color: #ef4444;
+            border-color: #ef4444;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+        }
+
+        /* Blood splatter effect for maimed status */
+        .aspect-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, 
+                transparent 0%,
+                transparent 45%,
+                rgba(239, 68, 68, 0) 45%,
+                rgba(239, 68, 68, 0) 50%,
+                rgba(239, 68, 68, 0.1) 50%,
+                rgba(239, 68, 68, 0) 55%,
+                transparent 55%,
+                transparent 100%
+            );
+            opacity: 0;
+            transition: all 0.3s ease;
+            pointer-events: none;
+        }
+
+        .maimed-toggle:checked ~ .aspect-header::after {
+            content: '✗';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-15deg);
+            font-size: 4rem;
+            color: rgba(239, 68, 68, 0.2);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .maimed-toggle:checked ~ .aspect-input {
+            border-color: #ef4444;
+        }
+
+        .aspect-item.maimed {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-2px); }
+            75% { transform: translateX(2px); }
+        }
+
+        .maimed-toggle:checked ~ * {
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        /* Resources Section Styles */
+        .resource-container {
+            background: rgba(30, 41, 59, 0.3);
+            border-radius: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        /* Critical - Below 25% */
+        .resource-container.critical {
+            animation: pulseCritical 2s infinite;
+            border-color: rgba(239, 68, 68, 0.5);
+        }
+
+        @keyframes pulseCritical {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.3); }
+            70% { box-shadow: 0 0 15px 8px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        .resource-value.critical {
+            color: rgb(252, 165, 165);
+            text-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+            font-weight: bold;
+        }
+
+        .resource-bar.critical {
+            border-color: rgba(239, 68, 68, 0.5);
+        }
+
+        .resource-bar-fill.critical {
+            animation: barPulseCritical 1.5s infinite;
+            background: linear-gradient(90deg, #991b1b, #ef4444);
+        }
+
+        @keyframes barPulseCritical {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        /* Low - Below 50% */
+        .resource-container.low {
+            animation: pulseLow 3s infinite;
+            border-color: rgba(234, 179, 8, 0.4);
+        }
+
+        @keyframes pulseLow {
+            0% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.2); }
+            70% { box-shadow: 0 0 10px 5px rgba(234, 179, 8, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(234, 179, 8, 0); }
+        }
+
+        .resource-value.low {
+            color: rgb(253, 224, 71);
+            text-shadow: 0 0 5px rgba(234, 179, 8, 0.3);
+        }
+
+        .resource-bar.low {
+            border-color: rgba(234, 179, 8, 0.4);
+        }
+
+        .resource-bar-fill.low {
+            animation: barPulseLow 2s infinite;
+            background: linear-gradient(90deg, #854d0e, #eab308);
+        }
+
+        @keyframes barPulseLow {
+            0%, 100% { opacity: 0.9; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Moderate - Below 75% */
+        .resource-container.moderate {
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .resource-value.moderate {
+            color: rgb(147, 197, 253);
+            text-shadow: 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .resource-bar.moderate {
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .resource-bar-fill.moderate {
+            background: linear-gradient(90deg, #1d4ed8, #3b82f6);
+        }
+
+        /* Full/High - 75% or above */
+        .resource-container.high {
+            border-color: rgba(34, 197, 94, 0.3);
+        }
+
+        .resource-value.high {
+            color: rgb(134, 239, 172);
+            text-shadow: 0 0 3px rgba(34, 197, 94, 0.2);
+        }
+
+        .resource-bar.high {
+            border-color: rgba(34, 197, 94, 0.3);
+        }
+
+        .resource-bar-fill.high {
+            background: linear-gradient(90deg, #15803d, #22c55e);
+        }
+
+        .resource-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .resource-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .resource-value {
+            background: rgba(30, 41, 59, 0.8);
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-family: monospace;
+            font-size: 1.125rem;
+        }
+
+        .resource-bar {
+            height: 0.75rem;
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 0.375rem;
+            overflow: hidden;
+            margin-bottom: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .resource-bar-fill {
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .presence-fill {
+            background: linear-gradient(90deg, rgba(147, 51, 234, 0.7), rgba(147, 51, 234, 0.9));
+        }
+
+        .influence-fill {
+            background: linear-gradient(90deg, rgba(16, 185, 129, 0.7), rgba(16, 185, 129, 0.9));
+        }
+
+        .resource-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .resource-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            min-width: 3rem;
+            text-align: center;
+        }
+
+        .resource-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .resource-btn.decrease {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: rgb(252, 165, 165);
+        }
+
+        .resource-btn.decrease:hover {
+            background: rgba(239, 68, 68, 0.3);
+        }
+
+        .resource-btn.increase {
+            background: rgba(34, 197, 94, 0.2);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: rgb(134, 239, 172);
+        }
+
+        .resource-btn.increase:hover {
+            background: rgba(34, 197, 94, 0.3);
+        }
+
+        .resource-btn.restore {
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: rgb(147, 197, 253);
+        }
+
+        .resource-btn.restore:hover {
+            background: rgba(59, 130, 246, 0.3);
+        }
+
+        /* Cast Cues Section */
+        .cast-cues {
+            background: rgba(30, 41, 59, 0.3);
+            border-radius: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 1.25rem;
+        }
+
+        .cast-cues-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .cast-cue-btn {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(79, 70, 229, 0.2));
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            transform-origin: center;
+            cursor: pointer;
+        }
+
+        .cast-cue-btn:hover {
+            transform: translateY(-2px);
+            border-color: rgba(99, 102, 241, 0.5);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+        }
+
+        .cast-cue-btn:active {
+            transform: translateY(0);
+        }
+
+        .cast-cue-btn.disabled {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(185, 28, 28, 0.1));
+            border-color: rgba(239, 68, 68, 0.3);
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .cast-cue-btn.disabled:hover {
+            transform: none;
+            box-shadow: none;
+            animation: shakeDeny 0.5s ease;
+        }
+
+        @keyframes shakeDeny {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-4px); }
+            75% { transform: translateX(4px); }
+        }
+
+        .cast-cue-btn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                rgba(255, 255, 255, 0.2) 0%,
+                rgba(255, 255, 255, 0.05) 50%,
+                transparent 50%
+            );
+            transform: rotate(45deg);
+            transition: all 0.6s ease;
+        }
+
+        .cast-cue-btn:hover::after {
+            transform: rotate(45deg) translate(50%, 50%);
+        }
+
+        .cast-cue-btn .cue-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: rgb(199, 210, 254);
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 10px rgba(99, 102, 241, 0.3);
+        }
+
+        .cast-cue-btn .cue-cost {
+            font-size: 0.875rem;
+            color: rgb(165, 180, 252);
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .cast-cue-btn .cue-cost::before {
+            content: '⚡';
+            font-size: 1rem;
+        }
+
+        .cast-cue-btn.disabled .cue-name {
+            color: rgb(252, 165, 165);
+            text-shadow: none;
+        }
+
+        .cast-cue-btn.disabled .cue-cost {
+            color: rgb(248, 113, 113);
+        }
+
+        .cast-cue-btn.disabled .cue-cost::before {
+            content: '✖';
+        }
+
+        /* Pulse animation for when cues become available */
+        .cast-cue-btn.newly-available {
+            animation: pulseAvailable 2s ease;
+        }
+
+        @keyframes pulseAvailable {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
+            50% { transform: scale(1.02); box-shadow: 0 0 20px 10px rgba(99, 102, 241, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+        }
+
+        /* Roll Section Styles */
+        .roll-section {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: rgba(30, 41, 59, 0.5);
+            border-radius: 0.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .roll-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .roll-input {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            color: #f8fafc;
+            width: 100%;
+            transition: all 0.2s ease;
+        }
+
+        .roll-input:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.2);
+        }
+
+        .roll-input option {
+            background-color: #1e293b;
+            color: #f8fafc;
+        }
+
+        .roll-input optgroup {
+            color: #94a3b8;
+            font-weight: bold;
+        }
+
+        .roll-button {
+            background: linear-gradient(135deg, #4f46e5, #6366f1);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .roll-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .roll-button:active {
+            transform: translateY(0);
+        }
+
+        .roll-button::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                rgba(255, 255, 255, 0.2) 0%,
+                rgba(255, 255, 255, 0.05) 50%,
+                transparent 50%
+            );
+            transform: rotate(45deg);
+            transition: all 0.3s ease;
+        }
+
+        .roll-button:hover::after {
+            transform: rotate(45deg) translate(50%, 50%);
+        }
+
+        .roll-result {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            background: rgba(30, 41, 59, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .roll-result.critical-success {
+            animation: criticalSuccess 1s ease;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.2));
+            border-color: rgba(16, 185, 129, 0.5);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .roll-result.critical-failure {
+            animation: criticalFailure 1s ease;
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(185, 28, 28, 0.2));
+            border-color: rgba(239, 68, 68, 0.5);
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+        }
+
+        @keyframes criticalSuccess {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes criticalFailure {
+            0%, 100% { transform: translate(0, 0); }
+            10%, 30%, 50%, 70%, 90% { transform: translate(-2px, 0); }
+            20%, 40%, 60%, 80% { transform: translate(2px, 0); }
+        }
+
+        .base-roll {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+
+        .base-roll.critical-success {
+            color: #10b981;
+            text-shadow: 0 0 5px rgba(16, 185, 129, 0.5);
+        }
+
+        .base-roll.critical-failure {
+            color: #ef4444;
+            text-shadow: 0 0 5px rgba(239, 68, 68, 0.5);
+        }
+
+        .modifier-group {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .modifier-label {
+            color: #94a3b8;
+            font-size: 0.875rem;
+        }
+
+        .clear-modifiers {
+            background: rgba(71, 85, 105, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #e2e8f0;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+        }
+
+        .clear-modifiers:hover {
+            background: rgba(71, 85, 105, 0.4);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Last Acts Status Toggle - Enhanced Dramatic Effects */
+        .last-acts-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1rem;
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.1), rgba(185, 28, 28, 0.1));
+            border: 2px solid rgba(239, 68, 68, 0.2);
+            border-radius: 0.75rem;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            margin: 1.5rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .last-acts-toggle::before {
+            content: '⚠';
+            position: absolute;
+            right: 1rem;
+            opacity: 0;
+            transform: translateX(20px);
+            transition: all 0.5s ease;
+            font-size: 1.25rem;
+            color: rgb(239, 68, 68);
+        }
+
+        .last-acts-toggle.active::before {
+            opacity: 1;
+            transform: translateX(0);
+            animation: warningPulse 2s infinite;
+        }
+
+        @keyframes warningPulse {
+            0%, 100% { opacity: 0.5; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        .last-acts-toggle:hover {
+            border-color: rgba(239, 68, 68, 0.6);
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .last-acts-toggle.active {
+            background: linear-gradient(135deg, 
+                rgba(220, 38, 38, 0.25),
+                rgba(185, 28, 28, 0.25)
+            );
+            border-color: rgb(239, 68, 68);
+            box-shadow: 
+                0 0 30px rgba(239, 68, 68, 0.3),
+                inset 0 0 20px rgba(239, 68, 68, 0.2);
+            animation: lastActsActivePulse 4s infinite;
+        }
+
+        @keyframes lastActsActivePulse {
+            0% { 
+                box-shadow: 
+                    0 0 30px rgba(239, 68, 68, 0.3),
+                    inset 0 0 20px rgba(239, 68, 68, 0.2);
+                border-color: rgb(239, 68, 68);
+            }
+            50% { 
+                box-shadow: 
+                    0 0 50px rgba(239, 68, 68, 0.5),
+                    inset 0 0 30px rgba(239, 68, 68, 0.3);
+                border-color: rgb(220, 38, 38);
+            }
+            100% { 
+                box-shadow: 
+                    0 0 30px rgba(239, 68, 68, 0.3),
+                    inset 0 0 20px rgba(239, 68, 68, 0.2);
+                border-color: rgb(239, 68, 68);
+            }
+        }
+
+        .last-acts-toggle .toggle-switch {
+            width: 3.5rem;
+            height: 1.75rem;
+            background: linear-gradient(to right, rgba(239, 68, 68, 0.2), rgba(185, 28, 28, 0.2));
+            border-radius: 1rem;
+            padding: 0.125rem;
+            position: relative;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .last-acts-toggle.active .toggle-switch {
+            background: linear-gradient(to right, rgb(239, 68, 68), rgb(185, 28, 28));
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
+        }
+
+        .last-acts-toggle .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 1.5rem;
+            height: 1.5rem;
+            background: linear-gradient(145deg, #ffffff, #f3f4f6);
+            border-radius: 50%;
+            left: 0.125rem;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .last-acts-toggle.active .toggle-switch::after {
+            transform: translateX(1.75rem);
+            background: linear-gradient(145deg, #fee2e2, #fecaca);
+            box-shadow: 
+                0 0 10px rgba(239, 68, 68, 0.4),
+                0 0 20px rgba(239, 68, 68, 0.2);
+        }
+
+        .last-acts-toggle .toggle-label {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: rgb(252, 165, 165);
+            text-shadow: 0 0 10px rgba(239, 68, 68, 0.2);
+            transition: all 0.5s ease;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .last-acts-toggle.active .toggle-label {
+            color: rgb(239, 68, 68);
+            text-shadow: 
+                0 0 10px rgba(239, 68, 68, 0.4),
+                0 2px 4px rgba(0, 0, 0, 0.2);
+            animation: textPulse 4s infinite;
+        }
+
+        @keyframes textPulse {
+            0%, 100% { 
+                color: rgb(239, 68, 68);
+                text-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+            }
+            50% { 
+                color: rgb(220, 38, 38);
+                text-shadow: 
+                    0 0 20px rgba(239, 68, 68, 0.6),
+                    0 0 40px rgba(239, 68, 68, 0.3);
+            }
+        }
+
+        /* Add dramatic page effect when Last Acts is active */
+        .last-acts-active {
+            animation: pageHeartbeat 4s infinite;
+        }
+
+        @keyframes pageHeartbeat {
+            0%, 100% { filter: drop-shadow(0 0 0 rgba(239, 68, 68, 0)); }
+            50% { filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.1)); }
+        }
+
+        /* Enhanced Last Acts Background Effects */
+        .container::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                linear-gradient(45deg, 
+                    rgba(239, 68, 68, 0) 0%,
+                    rgba(239, 68, 68, 0) 100%);
+            mix-blend-mode: overlay;
+            pointer-events: none;
+            opacity: 0;
+            transition: all 0.8s ease;
+            z-index: 1;
+        }
+
+        .last-acts-active .container::before {
+            opacity: 0.1;
+            animation: overlayShift 8s infinite;
+        }
+
+        @keyframes overlayShift {
+            0%, 100% {
+                background: linear-gradient(45deg,
+                    rgba(239, 68, 68, 0) 0%,
+                    rgba(239, 68, 68, 0.1) 50%,
+                    rgba(239, 68, 68, 0) 100%);
+            }
+            50% {
+                background: linear-gradient(45deg,
+                    rgba(239, 68, 68, 0.1) 0%,
+                    rgba(239, 68, 68, 0) 50%,
+                    rgba(239, 68, 68, 0.1) 100%);
+            }
+        }
+
+        .container::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at center,
+                transparent 0%,
+                transparent 60%,
+                rgba(0, 0, 0, 0) 100%);
+            pointer-events: none;
+            opacity: 0;
+            transition: all 0.8s ease;
+            z-index: 2;
+        }
+
+        .last-acts-active .container::after {
+            background: radial-gradient(circle at center,
+                transparent 0%,
+                rgba(20, 0, 0, 0.3) 60%,
+                rgba(20, 0, 0, 0.8) 100%);
+            opacity: 1;
+            animation: vignetteIntensify 4s infinite;
+        }
+
+        @keyframes vignetteIntensify {
+            0%, 100% {
+                background: radial-gradient(circle at center,
+                    transparent 0%,
+                    rgba(20, 0, 0, 0.3) 60%,
+                    rgba(20, 0, 0, 0.8) 100%);
+            }
+            50% {
+                background: radial-gradient(circle at center,
+                    transparent 0%,
+                    rgba(20, 0, 0, 0.4) 60%,
+                    rgba(20, 0, 0, 0.9) 100%);
+            }
+        }
+
+        /* Resource restoration button states */
+        .resource-btn.restore {
+            transition: all 0.3s ease;
+        }
+
+        .last-acts-active .resource-btn.restore {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.2);
+            animation: none;
+        }
+
+        .last-acts-active .resource-btn.restore:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .last-acts-active .resource-btn.restore::after {
+            content: '✕';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: rgba(239, 68, 68, 0.6);
+            font-size: 1.2em;
+        }
+
+        /* Resource button states in Last Acts */
+        .last-acts-active .resource-btn.increase,
+        .last-acts-active .resource-btn.restore {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.2);
+            animation: none;
+            position: relative;
+        }
+
+        .last-acts-active .resource-btn.increase:hover,
+        .last-acts-active .resource-btn.restore:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .last-acts-active .resource-btn.increase::after,
+        .last-acts-active .resource-btn.restore::after {
+            content: '✕';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: rgba(239, 68, 68, 0.6);
+            font-size: 1.2em;
+        }
+
+        /* Curtains Button Styles */
+        .curtains-btn {
+            display: none;
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 1rem 2rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: rgb(239, 68, 68);
+            background: linear-gradient(135deg, rgba(20, 0, 0, 0.9), rgba(40, 0, 0, 0.9));
+            border: 2px solid rgb(239, 68, 68);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            z-index: 1000;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 
+                0 0 20px rgba(239, 68, 68, 0.3),
+                inset 0 0 10px rgba(239, 68, 68, 0.2);
+            animation: curtainsPulse 2s infinite;
+        }
+
+        @keyframes curtainsPulse {
+            0%, 100% {
+                box-shadow: 
+                    0 0 20px rgba(239, 68, 68, 0.3),
+                    inset 0 0 10px rgba(239, 68, 68, 0.2);
+                text-shadow: 0 0 10px rgba(239, 68, 68, 0.4);
+            }
+            50% {
+                box-shadow: 
+                    0 0 40px rgba(239, 68, 68, 0.5),
+                    inset 0 0 20px rgba(239, 68, 68, 0.3);
+                text-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
+            }
+        }
+
+        .curtains-btn:hover {
+            transform: translateX(-50%) translateY(-2px);
+            background: linear-gradient(135deg, rgba(40, 0, 0, 0.9), rgba(60, 0, 0, 0.9));
+            box-shadow: 
+                0 0 30px rgba(239, 68, 68, 0.4),
+                inset 0 0 15px rgba(239, 68, 68, 0.3);
+        }
+
+        .last-acts-active .curtains-btn {
+            display: block;
+        }
+
+        /* Final Moment Effect */
+        .final-moment-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: black;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity 3s ease;
+        }
+
+        .final-moment-active .final-moment-overlay {
+            display: block;
+            opacity: 1;
+            transition: opacity 3s ease;
+        }
+
+        .final-moment-text {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: rgb(239, 68, 68);
+            font-size: 3rem;
+            font-weight: 700;
+            text-align: center;
+            opacity: 0;
+            z-index: 10000;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            text-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
+            white-space: nowrap;
+            pointer-events: none;
+        }
+
+        .final-moment-active .final-moment-text {
+            animation: textFadeInOut 3s forwards;
+        }
+
+        @keyframes textFadeInOut {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1.2); }
+        }
+
+        /* Revival Button Styles */
+        .revival-btn {
+            display: none;
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 1rem 2rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: #4ade80;
+            background: linear-gradient(135deg, rgba(0, 20, 0, 0.9), rgba(0, 40, 0, 0.9));
+            border: 2px solid #4ade80;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            z-index: 10001;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 
+                0 0 20px rgba(74, 222, 128, 0.3),
+                inset 0 0 10px rgba(74, 222, 128, 0.2);
+            animation: revivalPulse 2s infinite;
+        }
+
+        @keyframes revivalPulse {
+            0%, 100% {
+                box-shadow: 
+                    0 0 20px rgba(74, 222, 128, 0.3),
+                    inset 0 0 10px rgba(74, 222, 128, 0.2);
+                text-shadow: 0 0 10px rgba(74, 222, 128, 0.4);
+            }
+            50% {
+                box-shadow: 
+                    0 0 40px rgba(74, 222, 128, 0.5),
+                    inset 0 0 20px rgba(74, 222, 128, 0.3);
+                text-shadow: 0 0 20px rgba(74, 222, 128, 0.6);
+            }
+        }
+
+        .revival-btn:hover {
+            transform: translateX(-50%) translateY(-2px);
+            background: linear-gradient(135deg, rgba(0, 40, 0, 0.9), rgba(0, 60, 0, 0.9));
+            box-shadow: 
+                0 0 30px rgba(74, 222, 128, 0.4),
+                inset 0 0 15px rgba(74, 222, 128, 0.3);
+        }
+
+        @keyframes revivalLight {
+            0% { opacity: 1; }
+            50% { opacity: 0.3; }
+            100% { opacity: 0; }
+        }
+
+        .revival-light {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at center, rgba(74, 222, 128, 0.4) 0%, transparent 70%);
+            z-index: 9998;
+            pointer-events: none;
+        }
+
+        .revival-active .revival-light {
+            display: block;
+            animation: revivalLight 3s forwards;
+        }
+
+        .revival-text {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #4ade80;
+            font-size: 3rem;
+            font-weight: 700;
+            text-align: center;
+            opacity: 0;
+            z-index: 10000;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            text-shadow: 0 0 20px rgba(74, 222, 128, 0.6);
+            white-space: nowrap;
+        }
+
+        .revival-active .revival-text {
+            display: block;
+            animation: revivalTextFade 3s forwards;
+        }
+
+        @keyframes revivalTextFade {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+        }
+    </style>
+</head>
+<body class="min-h-screen p-8">
+    <div class="container mx-auto max-w-6xl">
+        <header>
+            <div class="header-content">
+                <!-- Character Info Section -->
+                <div class="character-info-section">
+                    <div class="character-info-header" onclick="toggleCharacterInfo()">
+                        <div class="flex items-center gap-4">
+                            <span class="text-xl font-bold" id="character-name-display">Unnamed Character</span>
+                            <span class="text-gray-400 text-sm" id="character-concept-display"></span>
+                        </div>
+                        <svg class="expand-icon w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </div>
+                    <div class="character-info-content">
+                        <div class="character-info-grid">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="character-info-label">Character Name</label>
+                                    <input type="text" id="character-name" 
+                                        class="character-info-input"
+                                        onchange="updateCharacterInfo()" 
+                                        placeholder="Enter character name">
+                                </div>
+                                <div>
+                                    <label class="character-info-label">Character Concept</label>
+                                    <input type="text" id="character-concept" 
+                                        class="character-info-input"
+                                        onchange="updateCharacterInfo()" 
+                                        placeholder="Brief character concept">
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="character-info-label">Character Description</label>
+                                <textarea id="character-description" 
+                                    class="character-info-input"
+                                    onchange="updateCharacterInfo()" 
+                                    placeholder="Detailed character description"></textarea>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="character-info-label">Background</label>
+                                    <textarea id="character-background" 
+                                        class="character-info-input"
+                                        onchange="updateCharacterInfo()" 
+                                        placeholder="Character background"></textarea>
+                                </div>
+                                <div>
+                                    <label class="character-info-label">Connections</label>
+                                    <textarea id="character-notes" 
+                                        class="character-info-input"
+                                        onchange="updateCharacterInfo()" 
+                                        placeholder="Additional notes"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="character-stats">
+                    <div class="stat-item">
+                        <div class="stat-label">Rank</div>
+                        <div class="stat-value" id="rank">1</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Learning Moments</div>
+                        <div class="stat-value" id="learning-moments">0</div>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button onclick="addLearningMoment()" class="bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded">
+                        Add Learning Moment
+                    </button>
+                    <button onclick="exportCharacter()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                        Save to File
+                    </button>
+                    <label class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded cursor-pointer text-center">
+                        Load from File
+                        <input type="file" id="load-character" class="hidden" onchange="importCharacter(event)" accept=".json">
+                    </label>
+                    <button onclick="resetCharacter()" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                        Reset Character
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <div class="grid md:grid-cols-2 gap-8">
+            <!-- Aspects Section -->
+            <section class="aspects-section">
+                <div class="aspects-header">
+                    <h2 class="text-2xl font-bold">Aspects</h2>
+                    <div class="aspects-points">
+                        <span class="text-gray-400">Available Points: </span>
+                        <span class="font-bold text-white" id="aspect-points">80</span>
+                    </div>
+                </div>
+                
+                <div class="aspects-grid">
+                    <!-- Presence Category -->
+                    <div class="aspects-category presence-category">
+                        Presence Aspects
+                    </div>
+
+                    <div class="aspect-item presence">
+                        <div class="aspect-header">
+                            <span class="aspect-name">Physique</span>
+                            <input type="number" id="physique" class="aspect-input" value="0" min="0">
+                        </div>
+                        <div>
+                            <input type="checkbox" id="physique-maimed" class="maimed-toggle" data-aspect="physique">
+                            <label for="physique-maimed" class="maimed-label">Maimed</label>
+                        </div>
+                    </div>
+
+                    <div class="aspect-item presence">
+                        <div class="aspect-header">
+                            <span class="aspect-name">Finesse</span>
+                            <input type="number" id="finesse" class="aspect-input" value="0" min="0">
+                        </div>
+                        <div>
+                            <input type="checkbox" id="finesse-maimed" class="maimed-toggle" data-aspect="finesse">
+                            <label for="finesse-maimed" class="maimed-label">Maimed</label>
+                        </div>
+                    </div>
+
+                    <div class="aspect-item presence">
+                        <div class="aspect-header">
+                            <span class="aspect-name">Courage</span>
+                            <input type="number" id="courage" class="aspect-input" value="0" min="0">
+                        </div>
+                        <div>
+                            <input type="checkbox" id="courage-maimed" class="maimed-toggle" data-aspect="courage">
+                            <label for="courage-maimed" class="maimed-label">Maimed</label>
+                        </div>
+                    </div>
+
+                    <!-- Influence Category -->
+                    <div class="aspects-category influence-category">
+                        Influence Aspects
+                    </div>
+
+                    <div class="aspect-item influence">
+                        <div class="aspect-header">
+                            <span class="aspect-name">Memory</span>
+                            <input type="number" id="memory" class="aspect-input" value="0" min="0">
+                        </div>
+                        <div>
+                            <input type="checkbox" id="memory-maimed" class="maimed-toggle" data-aspect="memory">
+                            <label for="memory-maimed" class="maimed-label">Maimed</label>
+                        </div>
+                    </div>
+
+                    <div class="aspect-item influence">
+                        <div class="aspect-header">
+                            <span class="aspect-name">Awareness</span>
+                            <input type="number" id="awareness" class="aspect-input" value="0" min="0">
+                        </div>
+                        <div>
+                            <input type="checkbox" id="awareness-maimed" class="maimed-toggle" data-aspect="awareness">
+                            <label for="awareness-maimed" class="maimed-label">Maimed</label>
+                        </div>
+                    </div>
+
+                    <div class="aspect-item influence">
+                        <div class="aspect-header">
+                            <span class="aspect-name">Instinct</span>
+                            <input type="number" id="instinct" class="aspect-input" value="0" min="0">
+                        </div>
+                        <div>
+                            <input type="checkbox" id="instinct-maimed" class="maimed-toggle" data-aspect="instinct">
+                            <label for="instinct-maimed" class="maimed-label">Maimed</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Roll Section -->
+                <div class="roll-section">
+                    <h3 class="text-xl font-bold mb-4">Roll</h3>
+                    <div class="roll-controls">
+                        <div>
+                            <label class="text-gray-400 text-sm mb-2 block">Selected Aspect:</label>
+                            <select id="roll-aspect" class="roll-input">
+                                <option value="">No Aspect</option>
+                                <optgroup label="Presence Aspects">
+                                    <option value="physique">Physique</option>
+                                    <option value="finesse">Finesse</option>
+                                    <option value="courage">Courage</option>
+                                </optgroup>
+                                <optgroup label="Influence Aspects">
+                                    <option value="memory">Memory</option>
+                                    <option value="awareness">Awareness</option>
+                                    <option value="instinct">Instinct</option>
+                                </optgroup>
+                            </select>
+                        </div>
+
+                        <div class="modifier-group">
+                            <div class="flex-1">
+                                <label class="text-gray-400 text-sm mb-2 block">Temporary Modifier:</label>
+                                <input type="number" id="temp-modifier" class="roll-input" value="0">
+                            </div>
+                            <button onclick="clearModifiers()" class="clear-modifiers mt-6">
+                                Clear
+                            </button>
+                        </div>
+
+                        <button onclick="rollD100WithModifiers()" class="roll-button">
+                            Roll d100
+                        </button>
+                    </div>
+
+                    <div id="roll-result" class="roll-result">
+                        <!-- Roll results will be displayed here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Resources Section -->
+            <section class="resources-section">
+                <h2 class="text-2xl font-semibold text-white mb-6">Resources & Cues</h2>
+                
+                <!-- Presence -->
+                <div class="resource-container">
+                    <div class="resource-header">
+                        <h3 class="resource-title text-purple-400">Presence</h3>
+                        <span class="resource-value" id="presence-value">0/0</span>
+                    </div>
+                    <div class="resource-bar">
+                        <div class="resource-bar-fill presence-fill" id="presence-bar" style="width: 100%"></div>
+                    </div>
+                    <div class="resource-buttons">
+                        <button onclick="adjustPresence(-5)" class="resource-btn decrease">-5</button>
+                        <button onclick="adjustPresence(-2)" class="resource-btn decrease">-2</button>
+                        <button onclick="adjustPresence(-1)" class="resource-btn decrease">-1</button>
+                        <button onclick="adjustPresence(1)" class="resource-btn increase">+1</button>
+                        <button onclick="adjustPresence(2)" class="resource-btn increase">+2</button>
+                        <button onclick="adjustPresence(5)" class="resource-btn increase">+5</button>
+                        <button onclick="restorePresence()" class="resource-btn restore">Restore</button>
+                    </div>
+                </div>
+
+                <!-- Influence -->
+                <div class="resource-container">
+                    <div class="resource-header">
+                        <h3 class="resource-title text-emerald-400">Influence</h3>
+                        <span class="resource-value" id="influence-value">0/0</span>
+                    </div>
+                    <div class="resource-bar">
+                        <div class="resource-bar-fill influence-fill" id="influence-bar" style="width: 100%"></div>
+                    </div>
+                    <div class="resource-buttons">
+                        <button onclick="adjustInfluence(-5)" class="resource-btn decrease">-5</button>
+                        <button onclick="adjustInfluence(-2)" class="resource-btn decrease">-2</button>
+                        <button onclick="adjustInfluence(-1)" class="resource-btn decrease">-1</button>
+                        <button onclick="adjustInfluence(1)" class="resource-btn increase">+1</button>
+                        <button onclick="adjustInfluence(2)" class="resource-btn increase">+2</button>
+                        <button onclick="adjustInfluence(5)" class="resource-btn increase">+5</button>
+                        <button onclick="restoreInfluence()" class="resource-btn restore">Restore</button>
+                    </div>
+                </div>
+
+                <!-- Last Acts Status -->
+                <div class="last-acts-toggle" onclick="toggleLastActs()" id="lastActsToggle">
+                    <div class="toggle-switch"></div>
+                    <span class="toggle-label">Last Acts</span>
+                </div>
+
+                <!-- Cast Cues -->
+                <div class="cast-cues">
+                    <h3 class="text-xl font-semibold text-white">Cast Cues</h3>
+                    <div class="cast-cues-grid">
+                        <button onclick="useCastCue(1)" class="cast-cue-btn" data-cost="1">
+                            <span class="cue-name">Act</span>
+                            <span class="cue-cost">⚡ 1</span>
+                        </button>
+                        <button onclick="useCastCue(2)" class="cast-cue-btn" data-cost="2">
+                            <span class="cue-name">Give a Line</span>
+                            <span class="cue-cost">⚡ 2</span>
+                        </button>
+                        <button onclick="useCastCue(3)" class="cast-cue-btn" data-cost="3">
+                            <span class="cue-name">Improvise</span>
+                            <span class="cue-cost">⚡ 3</span>
+                        </button>
+                        <button onclick="useCastCue(4)" class="cast-cue-btn" data-cost="4">
+                            <span class="cue-name">Retake</span>
+                            <span class="cue-cost">⚡ 4</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Final Moment Elements -->
+    <div class="final-moment-overlay"></div>
+    <div class="final-moment-text">The Final Curtain Falls</div>
+    <button class="curtains-btn" onclick="triggerFinalMoment()">Curtains</button>
+    
+    <!-- Revival Elements -->
+    <div class="revival-light"></div>
+    <div class="revival-text">A New Dawn Rises</div>
+    <button class="revival-btn" onclick="reviveCharacter()" style="display: none;">Revive</button>
+
+    <script>
+        // Initial state template
+        const initialState = {
+            rank: 1,
+            learningMoments: 0,
+            aspectPoints: 80,
+            totalAspectPoints: 80,
+            detailPoints: 0,
+            aspects: {
+                physique: 0,
+                finesse: 0,
+                courage: 0,
+                memory: 0,
+                awareness: 0,
+                instinct: 0
+            },
+            maimed: {
+                physique: false,
+                finesse: false,
+                courage: false,
+                memory: false,
+                awareness: false,
+                instinct: false
+            },
+            presence: {
+                current: 10,
+                max: 10
+            },
+            influence: {
+                current: 10,
+                max: 10
+            },
+            characterInfo: {
+                name: '',
+                concept: '',
+                description: '',
+                background: '',
+                notes: ''
+            },
+            lastActs: false,
+            lastSaved: null
+        };
+
+        // Create a deep copy of the initial state
+        let state = JSON.parse(JSON.stringify(initialState));
+
+        function initializeState() {
+            // Reset state to initial values
+            state = JSON.parse(JSON.stringify(initialState));
+            
+            // Clear localStorage
+            localStorage.removeItem('wpcCharacterSheet');
+            
+            // Update all displays
+            updateAllDisplays();
+            
+            // Show toast
+            showToast('Character sheet reset to default values', 2000, 'emerald');
+        }
+
+        function resetCharacter() {
+            if (confirm('Are you sure you want to reset the character sheet? This will clear all values and cannot be undone.')) {
+                initializeState();
+            }
+        }
+
+        // Load state from localStorage on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            // Try to load saved state, if it fails, initialize fresh state
+            try {
+                const savedState = localStorage.getItem('wpcCharacterSheet');
+                if (savedState) {
+                    const parsedState = JSON.parse(savedState);
+                    Object.assign(state, parsedState);
+                    updateAllDisplays();
+                    showToast('Character loaded from local storage', 2000, 'emerald');
+                } else {
+                    initializeState();
+                }
+            } catch (error) {
+                console.error('Error loading from localStorage:', error);
+                initializeState();
+            }
+
+            setupAutoSave();
+            
+            // Initialize event listeners
+            document.querySelectorAll('.aspect-input').forEach(input => {
+                input.addEventListener('change', (e) => {
+                    const newValue = parseInt(e.target.value) || 0;
+                    const oldValue = state.aspects[e.target.id];
+                    const pointDifference = newValue - oldValue;
+
+                    // Check if we have enough points for the increase
+                    if (pointDifference > state.aspectPoints) {
+                        // If not enough points, revert to maximum possible value
+                        e.target.value = oldValue + state.aspectPoints;
+                        showToast('Not enough Aspect Points!', 2000, 'red');
+                    } else if (newValue < oldValue) {
+                        // If decreasing, make sure it's not negative
+                        e.target.value = Math.max(0, newValue);
+                    }
+                    updateAspects();
+                });
+
+                // Prevent invalid input
+                input.addEventListener('keydown', (e) => {
+                    // Allow: backspace, delete, tab, escape, enter, and numbers
+                    if (e.key === 'Backspace' || e.key === 'Delete' || e.key === 'Tab' || 
+                        e.key === 'Escape' || e.key === 'Enter' || 
+                        (!isNaN(Number(e.key)) && !e.shiftKey)) {
+                        return;
+                    }
+                    e.preventDefault();
+                });
+            });
+
+            // Maimed toggle listeners
+            document.querySelectorAll('.maimed-toggle').forEach(toggle => {
+                toggle.addEventListener('change', (e) => {
+                    const aspect = e.target.dataset.aspect;
+                    state.maimed[aspect] = e.target.checked;
+                    updateAspects();
+                    updateMaimedStatus(aspect);
+                });
+            });
+
+            updateAspects();
+        });
+
+        function setupAutoSave() {
+            // Auto-save every 30 seconds
+            setInterval(saveToLocalStorage, 30000);
+            
+            // Save before user leaves page
+            window.addEventListener('beforeunload', saveToLocalStorage);
+        }
+
+        function saveToLocalStorage() {
+            try {
+                state.lastSaved = new Date().toISOString();
+                localStorage.setItem('wpcCharacterSheet', JSON.stringify(state));
+                console.log('Auto-saved character sheet');
+            } catch (error) {
+                console.error('Error saving to localStorage:', error);
+            }
+        }
+
+        function loadFromLocalStorage() {
+            try {
+                const savedState = localStorage.getItem('wpcCharacterSheet');
+                if (savedState) {
+                    const parsedState = JSON.parse(savedState);
+                    // Update state with saved values
+                    Object.assign(state, parsedState);
+                    // Update UI
+                    updateAllDisplays();
+                    showToast('Character loaded from local storage', 2000, 'emerald');
+                }
+            } catch (error) {
+                console.error('Error loading from localStorage:', error);
+                showToast('Error loading saved character', 2000, 'red');
+            }
+            updateResourceDisplays();
+        }
+
+        function exportCharacter() {
+            try {
+                // Prepare character data
+                const characterData = JSON.stringify(state, null, 2);
+                const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+                const characterName = state.characterInfo.name || 'character';
+                const filename = `${characterName}-${timestamp}.json`;
+
+                // Create download link
+                const blob = new Blob([characterData], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = filename;
+
+                // Trigger download
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+
+                showToast('Character saved to file!', 2000, 'emerald');
+            } catch (error) {
+                console.error('Error exporting character:', error);
+                showToast('Error saving character to file', 2000, 'red');
+            }
+        }
+
+        function importCharacter(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedState = JSON.parse(e.target.result);
+                    
+                    // Validate imported data has required properties
+                    const requiredProperties = ['aspects', 'maimed', 'presence', 'influence'];
+                    if (!requiredProperties.every(prop => prop in importedState)) {
+                        throw new Error('Invalid character file format');
+                    }
+
+                    // Update state with imported values
+                    Object.assign(state, importedState);
+                    
+                    // Update UI
+                    updateAllDisplays();
+                    
+                    // Save to localStorage
+                    saveToLocalStorage();
+                    
+                    showToast('Character loaded successfully!', 2000, 'emerald');
+                } catch (error) {
+                    console.error('Error importing character:', error);
+                    showToast('Error loading character file', 2000, 'red');
+                }
+            };
+            reader.readAsText(file);
+            
+            // Reset file input
+            event.target.value = '';
+        }
+
+        function updateAllDisplays() {
+            // Update all UI elements with current state
+            document.getElementById('rank').textContent = state.rank;
+            document.getElementById('learning-moments').textContent = state.learningMoments;
+
+            // Update aspects
+            Object.keys(state.aspects).forEach(aspect => {
+                const input = document.getElementById(aspect);
+                if (input) input.value = state.aspects[aspect];
+            });
+
+            // Update maimed toggles
+            Object.keys(state.maimed).forEach(aspect => {
+                const toggle = document.querySelector(`input[data-aspect="${aspect}"]`);
+                if (toggle) toggle.checked = state.maimed[aspect];
+            });
+
+            // Update resources
+            updateResourceDisplays();
+
+            // Update character info displays
+            document.getElementById('character-name').value = state.characterInfo.name;
+            document.getElementById('character-concept').value = state.characterInfo.concept;
+            document.getElementById('character-description').value = state.characterInfo.description;
+            document.getElementById('character-background').value = state.characterInfo.background;
+            document.getElementById('character-notes').value = state.characterInfo.notes;
+
+            document.getElementById('character-name-display').textContent = 
+                state.characterInfo.name || 'Unnamed Character';
+            document.getElementById('character-concept-display').textContent = 
+                state.characterInfo.concept;
+
+            // Update Last Acts toggle visual state
+            document.getElementById('lastActsToggle').classList.toggle('active', state.lastActs);
+
+            // Save to localStorage
+            saveToLocalStorage();
+        }
+
+        function updateAspects() {
+            let totalAllocated = 0;
+            
+            // Update aspects and calculate totals
+            Object.keys(state.aspects).forEach(aspect => {
+                const value = parseInt(document.getElementById(aspect).value) || 0;
+                state.aspects[aspect] = value;
+                totalAllocated += value;
+            });
+
+            // Update remaining points based on total available minus allocated
+            state.aspectPoints = state.totalAspectPoints - totalAllocated;
+            document.getElementById('aspect-points').textContent = state.aspectPoints;
+
+            // Update input states based on available points
+            Object.keys(state.aspects).forEach(aspect => {
+                const input = document.getElementById(aspect);
+                if (state.aspectPoints <= 0) {
+                    // If no points available, prevent increase
+                    input.max = state.aspects[aspect];
+                } else {
+                    // If points available, allow increase up to current + available points
+                    input.max = state.aspects[aspect] + state.aspectPoints;
+                }
+            });
+
+            // Calculate resource maximums
+            state.presence.max = calculatePresenceMax();
+            state.influence.max = calculateInfluenceMax();
+
+            // Ensure current values don't exceed new maximums
+            state.presence.current = Math.min(state.presence.current, state.presence.max);
+            state.influence.current = Math.min(state.influence.current, state.influence.max);
+
+            // Update resource displays
+            updateResourceDisplays();
+        }
+
+        function calculatePresenceMax() {
+            return Object.entries({
+                physique: state.aspects.physique,
+                finesse: state.aspects.finesse,
+                courage: state.aspects.courage
+            }).reduce((total, [aspect, value]) => {
+                return total + (state.maimed[aspect] ? value - 20 : value);
+            }, 0);
+        }
+
+        function calculateInfluenceMax() {
+            return Object.entries({
+                memory: state.aspects.memory,
+                awareness: state.aspects.awareness,
+                instinct: state.aspects.instinct
+            }).reduce((total, [aspect, value]) => {
+                return total + (state.maimed[aspect] ? value - 20 : value);
+            }, 0);
+        }
+
+        function updateResourceDisplays() {
+            const presenceValue = document.getElementById('presence-value');
+            const influenceValue = document.getElementById('influence-value');
+            const presenceBar = document.getElementById('presence-bar');
+            const influenceBar = document.getElementById('influence-bar');
+            const presenceContainer = presenceValue.closest('.resource-container');
+            const influenceContainer = influenceValue.closest('.resource-container');
+
+            // Calculate percentages
+            const presencePercent = (state.presence.current / calculatePresenceMax()) * 100;
+            const influencePercent = (state.influence.current / calculateInfluenceMax()) * 100;
+
+            // Update displays
+            presenceValue.textContent = `${state.presence.current}/${calculatePresenceMax()}`;
+            influenceValue.textContent = `${state.influence.current}/${calculateInfluenceMax()}`;
+            
+            presenceBar.style.width = `${presencePercent}%`;
+            influenceBar.style.width = `${influencePercent}%`;
+
+            // Update resource status based on thresholds
+            const updateResourceStatus = (percent, elements) => {
+                // Remove all status classes first
+                const statusClasses = ['critical', 'low', 'moderate', 'high'];
+                statusClasses.forEach(cls => {
+                    elements.container.classList.remove(cls);
+                    elements.value.classList.remove(cls);
+                    elements.bar.classList.remove(cls);
+                    elements.barFill.classList.remove(cls);
+                });
+
+                // Add appropriate status class based on percentage
+                let statusClass;
+                if (percent <= 25) {
+                    statusClass = 'critical';
+                } else if (percent <= 50) {
+                    statusClass = 'low';
+                } else if (percent <= 75) {
+                    statusClass = 'moderate';
+                } else {
+                    statusClass = 'high';
+                }
+
+                elements.container.classList.add(statusClass);
+                elements.value.classList.add(statusClass);
+                elements.bar.classList.add(statusClass);
+                elements.barFill.classList.add(statusClass);
+            };
+
+            updateResourceStatus(presencePercent, {
+                container: presenceContainer,
+                value: presenceValue,
+                bar: presenceBar.parentElement,
+                barFill: presenceBar
+            });
+
+            updateResourceStatus(influencePercent, {
+                container: influenceContainer,
+                value: influenceValue,
+                bar: influenceBar.parentElement,
+                barFill: influenceBar
+            });
+        }
+
+        function adjustPresence(amount) {
+            if (state.lastActs && amount > 0) {
+                showToast('Resources Cannot Increase in Last Acts', 2000, 'red');
+                return;
+            }
+            const newValue = state.presence.current + amount;
+            state.presence.current = Math.max(0, Math.min(calculatePresenceMax(), newValue));
+            updateResourceDisplays();
+        }
+
+        function adjustInfluence(amount) {
+            if (state.lastActs && amount > 0) {
+                showToast('Resources Cannot Increase in Last Acts', 2000, 'red');
+                return;
+            }
+            const newValue = state.influence.current + amount;
+            state.influence.current = Math.max(0, Math.min(calculateInfluenceMax(), newValue));
+            updateResourceDisplays();
+        }
+
+        function restorePresence() {
+            if (state.lastActs) {
+                showToast('Restoration Impossible in Last Acts', 2000, 'red');
+                return;
+            }
+            state.presence.current = calculatePresenceMax();
+            updateResourceDisplays();
+            showToast('Presence Restored', 2000, 'blue');
+        }
+
+        function restoreInfluence() {
+            if (state.lastActs) {
+                showToast('Restoration Impossible in Last Acts', 2000, 'red');
+                return;
+            }
+            state.influence.current = calculateInfluenceMax();
+            updateResourceDisplays();
+            showToast('Influence Restored', 2000, 'blue');
+        }
+
+        function useCastCue(cost) {
+            if (state.influence.current >= cost) {
+                state.influence.current -= cost;
+                updateResourceDisplays();
+                showToast('Cast Cue used!', 2000, 'indigo');
+            } else {
+                // Add shake animation class
+                const buttons = document.querySelectorAll('.cast-cue-btn');
+                buttons.forEach(btn => {
+                    const btnCost = parseInt(btn.getAttribute('data-cost'));
+                    if (btnCost === cost) {
+                        btn.classList.add('disabled');
+                        // Remove the class after animation completes
+                        setTimeout(() => btn.classList.remove('disabled'), 500);
+                    }
+                });
+                showToast('Not enough Influence!', 2000, 'red');
+            }
+        }
+
+        function toggleLastActs() {
+            state.lastActs = !state.lastActs;
+            
+            const toggle = document.getElementById('lastActsToggle');
+            const container = document.querySelector('.container');
+            const body = document.body;
+            const curtainsBtn = document.querySelector('.curtains-btn');
+
+            if (state.lastActs) {
+                toggle.classList.add('active');
+                container.classList.add('last-acts-active');
+                body.classList.add('last-acts-active');
+                curtainsBtn.style.display = 'block';
+                
+                // Disable all resource-increasing buttons
+                document.querySelectorAll('.resource-btn.increase, .resource-btn.restore').forEach(btn => {
+                    btn.disabled = true;
+                    btn.title = 'Resources Cannot Increase in Last Acts';
+                });
+                
+                showToast('⚠ Last Acts Activated - No Return', 3000, 'red');
+            } else {
+                toggle.classList.remove('active');
+                container.classList.remove('last-acts-active');
+                body.classList.remove('last-acts-active');
+                curtainsBtn.style.display = 'none';
+                
+                // Enable all resource buttons
+                document.querySelectorAll('.resource-btn.increase, .resource-btn.restore').forEach(btn => {
+                    btn.disabled = false;
+                    btn.title = '';
+                });
+                
+                showToast('Last Acts Deactivated', 2000, 'gray');
+            }
+            
+            saveToLocalStorage();
+            updateResourceDisplays();
+        }
+
+        function loadState() {
+            try {
+                const savedState = localStorage.getItem('wpcCharacterSheet');
+                if (savedState) {
+                    const parsed = JSON.parse(savedState);
+                    state.presence = parsed.presence || state.presence;
+                    state.influence = parsed.influence || state.influence;
+                    state.learningMoments = parsed.learningMoments || 0;
+                    state.lastActs = parsed.lastActs || false;
+                    
+                    // Initialize Last Acts visual state
+                    const toggle = document.getElementById('lastActsToggle');
+                    const container = document.querySelector('.container');
+                    const body = document.body;
+                    
+                    if (state.lastActs) {
+                        toggle.classList.add('active');
+                        container.classList.add('last-acts-active');
+                        body.classList.add('last-acts-active');
+                        
+                        // Disable all resource-increasing buttons
+                        document.querySelectorAll('.resource-btn.increase, .resource-btn.restore').forEach(btn => {
+                            btn.disabled = true;
+                            btn.title = 'Resources Cannot Increase in Last Acts';
+                        });
+                    } else {
+                        toggle.classList.remove('active');
+                        container.classList.remove('last-acts-active');
+                        body.classList.remove('last-acts-active');
+                        
+                        // Enable all resource buttons
+                        document.querySelectorAll('.resource-btn.increase, .resource-btn.restore').forEach(btn => {
+                            btn.disabled = false;
+                            btn.title = '';
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading from localStorage:', error);
+                showToast('Error loading saved character', 2000, 'red');
+            }
+            updateResourceDisplays();
+        }
+
+        function addLearningMoment() {
+            state.learningMoments++;
+            document.getElementById('learning-moments').textContent = state.learningMoments;
+
+            // Check if we have enough learning moments to rank up
+            if (state.learningMoments >= (10 + state.rank)) {
+                showRankUpModal();
+            }
+
+            // Save state
+            saveToLocalStorage();
+        }
+
+        function showRankUpModal() {
+            // Remove any existing modal
+            const existingModal = document.getElementById('rank-up-modal');
+            if (existingModal) {
+                existingModal.remove();
+            }
+
+            // Create modal
+            const modal = document.createElement('div');
+            modal.id = 'rank-up-modal';
+            modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            modal.innerHTML = `
+                <div class="bg-gray-800 p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
+                    <h2 class="text-2xl font-bold mb-4 text-center">Rank Up!</h2>
+                    <p class="text-gray-300 mb-6 text-center">Choose your reward:</p>
+                    <div class="flex flex-col gap-4">
+                        <button onclick="rankUp('aspect')" 
+                            class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded">
+                            +5 Aspect Points
+                        </button>
+                        <button onclick="rankUp('detail')" 
+                            class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded">
+                            +2 Detail Points
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            // Add modal to body
+            document.body.appendChild(modal);
+
+            // Add click event to close modal when clicking outside
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+        }
+
+        function rankUp(rewardType) {
+            state.rank++;
+            state.learningMoments = 0;
+
+            if (rewardType === 'aspect') {
+                state.totalAspectPoints += 5;
+                state.aspectPoints += 5;
+                showToast(`Ranked up to ${state.rank}! Gained 5 Aspect Points`);
+            } else {
+                // Update detail points in localStorage for the Details sheet
+                const currentDetailPoints = parseInt(localStorage.getItem('detailPoints') || '5');
+                localStorage.setItem('detailPoints', currentDetailPoints + 2);
+                showToast(`Ranked up to ${state.rank}! Gained 2 Detail Points`, 3000, 'emerald');
+                
+                // Notify the Details sheet about the update
+                const detailsFrame = document.getElementById('details-frame');
+                if (detailsFrame) {
+                    detailsFrame.contentWindow.postMessage({ 
+                        type: 'detailPointsUpdate', 
+                        points: currentDetailPoints + 2 
+                    }, '*');
+                }
+            }
+
+            // Update display
+            document.getElementById('rank').textContent = state.rank;
+            document.getElementById('learning-moments').textContent = state.learningMoments;
+
+            // Remove modal
+            const modal = document.getElementById('rank-up-modal');
+            if (modal) {
+                modal.remove();
+            }
+
+            // Save state
+            saveToLocalStorage();
+        }
+
+        function showToast(message, duration = 3000, type = 'purple') {
+            // Remove any existing toast
+            const existingToast = document.querySelector('.toast');
+            if (existingToast) {
+                existingToast.remove();
+            }
+
+            // Create new toast
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            if (type === 'emerald') {
+                toast.style.backgroundColor = '#059669';
+            } else if (type === 'red') {
+                toast.style.backgroundColor = '#dc2626';
+            } else {
+                toast.style.backgroundColor = '#4f46e5';
+            }
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            // Trigger animation
+            setTimeout(() => toast.classList.add('show'), 10);
+
+            // Remove toast after duration
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
+        }
+
+        function toggleCharacterInfo() {
+            const content = document.querySelector('.character-info-content');
+            const icon = document.querySelector('.expand-icon');
+            content.classList.toggle('expanded');
+            icon.classList.toggle('expanded');
+        }
+
+        function updateCharacterInfo() {
+            // Update state with form values
+            state.characterInfo.name = document.getElementById('character-name').value;
+            state.characterInfo.concept = document.getElementById('character-concept').value;
+            state.characterInfo.description = document.getElementById('character-description').value;
+            state.characterInfo.background = document.getElementById('character-background').value;
+            state.characterInfo.notes = document.getElementById('character-notes').value;
+
+            // Update display
+            document.getElementById('character-name-display').textContent = 
+                state.characterInfo.name || 'Unnamed Character';
+            document.getElementById('character-concept-display').textContent = 
+                state.characterInfo.concept;
+
+            // Save to localStorage
+            saveToLocalStorage();
+        }
+
+        function rollD100WithModifiers() {
+            const baseRoll = Math.floor(Math.random() * 100) + 1;
+            const selectedAspect = document.getElementById('roll-aspect').value;
+            const tempModifier = parseInt(document.getElementById('temp-modifier').value) || 0;
+            
+            let aspectModifier = 0;
+            let isMaimed = false;
+            let aspectName = '';
+            
+            if (selectedAspect) {
+                aspectModifier = state.aspects[selectedAspect];
+                isMaimed = state.maimed[selectedAspect];
+                aspectName = selectedAspect.charAt(0).toUpperCase() + selectedAspect.slice(1);
+            }
+
+            // Calculate final result
+            const maimedPenalty = isMaimed ? -20 : 0;
+            const totalModifier = aspectModifier + maimedPenalty + tempModifier;
+            const finalResult = baseRoll + totalModifier;
+
+            // Determine if it's a critical roll
+            const isCriticalSuccess = baseRoll === 100;
+            const isCriticalFailure = baseRoll === 1;
+
+            // Get and update result element
+            const resultElement = document.getElementById('roll-result');
+            
+            // Remove previous classes
+            resultElement.className = 'roll-result';
+            
+            // Add appropriate class based on roll type
+            if (isCriticalSuccess) {
+                resultElement.classList.add('critical-success');
+            } else if (isCriticalFailure) {
+                resultElement.classList.add('critical-failure');
+            }
+
+            // Build result display with enhanced styling
+            let resultHTML = `
+                <div class="text-2xl font-bold mb-2 ${
+                    isCriticalSuccess ? 'text-emerald-400' :
+                    isCriticalFailure ? 'text-red-400' :
+                    finalResult >= 50 ? 'text-green-400' : 'text-red-400'
+                }">
+                    ${finalResult}
+                    ${isCriticalSuccess ? 
+                        '<div class="text-base text-emerald-400 mt-1">Critical Success!</div>' : 
+                        isCriticalFailure ? 
+                        '<div class="text-base text-red-400 mt-1">Critical Failure!</div>' : 
+                        ''}
+                </div>
+                <div class="text-sm space-y-1">
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-400">Base Roll:</span>
+                        <span class="base-roll ${
+                            isCriticalSuccess ? 'critical-success' :
+                            isCriticalFailure ? 'critical-failure' : ''
+                        }">${baseRoll}</span>
+                    </div>
+            `;
+
+            if (selectedAspect) {
+                resultHTML += `
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-400">${aspectName}:</span>
+                        <span>${aspectModifier}</span>
+                    </div>
+                `;
+                
+                if (isMaimed) {
+                    resultHTML += `
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-400">Maimed:</span>
+                            <span class="text-red-400">${maimedPenalty}</span>
+                        </div>
+                    `;
+                }
+            }
+
+            if (tempModifier !== 0) {
+                resultHTML += `
+                    <div class="flex justify-between items-center">
+                        <span class="text-gray-400">Temporary ${tempModifier > 0 ? 'Buff' : 'Debuff'}:</span>
+                        <span class="${tempModifier > 0 ? 'text-green-400' : 'text-red-400'}">${tempModifier}</span>
+                    </div>
+                `;
+            }
+
+            resultHTML += `
+                    <div class="flex justify-between items-center pt-1 border-t border-gray-700">
+                        <span class="text-gray-400">Total Modifier:</span>
+                        <span class="${totalModifier > 0 ? 'text-green-400' : totalModifier < 0 ? 'text-red-400' : ''}">${totalModifier}</span>
+                    </div>
+                </div>
+            `;
+
+            resultElement.innerHTML = resultHTML;
+
+            // Add dramatic shake animation for critical rolls
+            if (isCriticalSuccess || isCriticalFailure) {
+                const audio = new Audio(isCriticalSuccess ? 
+                    'https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3' : // Success sound
+                    'https://assets.mixkit.co/active_storage/sfx/2572/2572-preview.mp3'   // Failure sound
+                );
+                audio.volume = 0.3;
+                audio.play().catch(() => {}); // Ignore if audio fails to play
+            }
+        }
+
+        function clearModifiers() {
+            document.getElementById('temp-modifier').value = '0';
+            showToast('Temporary modifiers cleared', 2000, 'gray');
+        }
+
+        function updateMaimedStatus(aspectId) {
+            const aspect = document.getElementById(aspectId);
+            const maimedCheckbox = document.getElementById(aspectId + '-maimed');
+            const aspectItem = aspect.closest('.aspect-item');
+            
+            if (maimedCheckbox.checked) {
+                aspectItem.classList.add('maimed');
+                aspect.style.opacity = '0.7';
+            } else {
+                aspectItem.classList.remove('maimed');
+                aspect.style.opacity = '1';
+            }
+        }
+
+        function triggerFinalMoment() {
+            const body = document.body;
+            const characterName = state.characterInfo.name || 'The Character';
+            const revivalBtn = document.querySelector('.revival-btn');
+            
+            // Ask for confirmation
+            if (!confirm(`Are you sure? This will mark ${characterName}'s final moment.`)) {
+                return;
+            }
+
+            // Add final moment class to trigger animations
+            body.classList.add('final-moment-active');
+
+            // Create dramatic final message
+            const finalMessage = `${characterName}'s story has come to an end.`;
+            
+            // Save the character's final state
+            const finalState = {
+                ...state,
+                finalMoment: {
+                    timestamp: new Date().toISOString(),
+                    presence: state.presence.current,
+                    influence: state.influence.current
+                }
+            };
+            
+            localStorage.setItem('wpcCharacterSheet_final', JSON.stringify(finalState));
+            
+            // Disable all interactions except revival
+            document.querySelectorAll('button:not(.revival-btn), input, select').forEach(element => {
+                element.disabled = true;
+            });
+
+            // Show the revival button after text animation
+            setTimeout(() => {
+                showToast(finalMessage, 3000, 'red');
+                revivalBtn.style.display = 'block';
+            }, 3000);
+        }
+
+        function reviveCharacter() {
+            const body = document.body;
+            const characterName = state.characterInfo.name || 'The Character';
+            const revivalBtn = document.querySelector('.revival-btn');
+            const finalMomentOverlay = document.querySelector('.final-moment-overlay');
+            
+            // Ask for confirmation
+            if (!confirm(`Revive ${characterName}? Their story will continue...`)) {
+                return;
+            }
+
+            // Hide the revival button immediately
+            revivalBtn.style.display = 'none';
+            
+            // Add revival effects
+            body.classList.add('revival-active');
+
+            // Fade out the black overlay
+            finalMomentOverlay.style.opacity = '0';
+
+            // After revival animation starts
+            setTimeout(() => {
+                // Remove final moment and revival classes
+                body.classList.remove('final-moment-active', 'revival-active');
+                
+                // Reset Last Acts state
+                state.lastActs = false;
+                const toggle = document.getElementById('lastActsToggle');
+                const container = document.querySelector('.container');
+                toggle.classList.remove('active');
+                container.classList.remove('last-acts-active');
+                body.classList.remove('last-acts-active');
+                
+                // Re-enable all buttons and remove titles
+                document.querySelectorAll('button, input, select').forEach(element => {
+                    element.disabled = false;
+                    if (element.classList.contains('resource-btn')) {
+                        element.title = '';
+                    }
+                });
+
+                // Hide curtains button
+                document.querySelector('.curtains-btn').style.display = 'none';
+
+                // Show revival message
+                showToast(`${characterName} lives again!`, 3000, 'green');
+                
+                // Update displays
+                saveToLocalStorage();
+                updateResourceDisplays();
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
