@@ -230,7 +230,8 @@
             const spentPoints = parseInt(localStorage.getItem(`${category}SpentPoints`) || '0');
             const rankElement = document.querySelector(`[data-category="${category}"].rank-value`);
             if (rankElement) {
-                rankElement.textContent = spentPoints;
+                // For passive category, rank increases at half the rate (2:1)
+                rankElement.textContent = category === 'passive' ? Math.floor(spentPoints / 2) : spentPoints;
             }
             saveAllEntries();
         }
@@ -280,7 +281,7 @@
             const newEntry = document.createElement('div');
             newEntry.className = 'action-entry bg-gray-800 p-4 rounded-lg relative';
 
-            // Add initial content (1 cue and 2 effects)
+            // Add initial content (1 cue and 2 effects, or for passive: 1 cue and 1 effect)
             newEntry.innerHTML = `
                 <button class="delete-entry absolute top-2 right-2 text-red-500 hover:text-red-700">
                     <i class="fas fa-times"></i>
@@ -294,7 +295,7 @@
                     <div class="flex justify-between items-center mb-2">
                         <label class="block text-sm font-medium text-gray-300">Cues</label>
                         <button class="add-cue text-sm bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700 transition-colors">
-                            Add Cue (1 Point)
+                            Add Cue (${category === 'passive' ? '2' : '1'} Point${category === 'passive' ? 's' : ''})
                         </button>
                     </div>
                     <div class="cue-list space-y-2">
@@ -307,16 +308,25 @@
                     <div class="flex justify-between items-center mb-2">
                         <label class="block text-sm font-medium text-gray-300">Effects</label>
                         <button class="add-effect text-sm bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700 transition-colors">
-                            Add Effect (1 Point)
+                            Add Effect (${category === 'passive' ? '2' : '1'} Point${category === 'passive' ? 's' : ''})
                         </button>
                     </div>
                     <div class="effect-list space-y-2">
-                        <select class="effect-select w-full bg-gray-700 text-white rounded p-2 mb-2">
-                            ${getEffectOptions()}
-                        </select>
+                        <div class="effect-item relative">
+                            <div class="flex items-center gap-2">
+                                <select class="effect-select w-full bg-gray-700 text-white rounded p-2">
+                                    ${getEffectOptions()}
+                                </select>
+                                ${category === 'passive' ? `
+                                <select class="effect-rank bg-gray-700 text-white rounded p-2 w-24" title="Effect Rank" onchange="handleRankChange(this)">
+                                    ${Array.from({length: 10}, (_, i) => `<option value="${i+1}">R${i+1}</option>`).join('')}
+                                </select>` : ''}
+                            </div>
+                        </div>
+                        ${category !== 'passive' ? `
                         <select class="effect-select w-full bg-gray-700 text-white rounded p-2">
                             ${getEffectOptions()}
-                        </select>
+                        </select>` : ''}
                     </div>
                 </div>
             `;
@@ -333,8 +343,9 @@
 
         // Function to handle adding effects (now costs points)
         function handleAddEffect(entry) {
+            const category = entry.closest('[id$="-section"]').id.replace('-section', '');
             const currentPoints = parseInt(localStorage.getItem('detailPoints') || '5');
-            const pointCost = 1;
+            const pointCost = category === 'passive' ? 2 : 1;
 
             if (currentPoints < pointCost) {
                 alert('Not enough detail points available!');
@@ -345,16 +356,21 @@
             const newEffect = document.createElement('div');
             newEffect.className = 'effect-item relative';
             newEffect.innerHTML = `
-                <select class="effect-select w-full bg-gray-700 text-white rounded p-2">
-                    ${getEffectOptions()}
-                </select>
-                <button class="remove-effect absolute -right-6 top-2 text-red-500 hover:text-red-700">
-                    <i class="fas fa-times"></i>
-                </button>
+                <div class="flex items-center gap-2">
+                    <select class="effect-select w-full bg-gray-700 text-white rounded p-2">
+                        ${getEffectOptions()}
+                    </select>
+                    ${category === 'passive' ? `
+                    <select class="effect-rank bg-gray-700 text-white rounded p-2 w-24" title="Effect Rank" onchange="handleRankChange(this)">
+                        ${Array.from({length: 10}, (_, i) => `<option value="${i+1}">R${i+1}</option>`).join('')}
+                    </select>` : ''}
+                    <button class="remove-effect text-red-500 hover:text-red-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
             `;
 
             // Spend point and update displays
-            const category = entry.closest('[id$="-section"]').id.replace('-section', '');
             if (spendDetailPoints(pointCost, category)) {
                 effectList.appendChild(newEffect);
                 saveAllEntries();
@@ -363,8 +379,9 @@
 
         // Function to handle adding cues (costs points)
         function handleAddCue(entry) {
+            const category = entry.closest('[id$="-section"]').id.replace('-section', '');
             const currentPoints = parseInt(localStorage.getItem('detailPoints') || '5');
-            const pointCost = 1;
+            const pointCost = category === 'passive' ? 2 : 1;
 
             if (currentPoints < pointCost) {
                 alert('Not enough detail points available!');
@@ -384,7 +401,6 @@
             `;
 
             // Spend point and update displays
-            const category = entry.closest('[id$="-section"]').id.replace('-section', '');
             if (spendDetailPoints(pointCost, category)) {
                 cueList.appendChild(newCue);
                 saveAllEntries();
@@ -481,7 +497,8 @@
                     const entries = Array.from(entriesContainer.querySelectorAll('.action-entry')).map(entry => ({
                         name: entry.querySelector('.action-name').value,
                         cues: Array.from(entry.querySelectorAll('.cue-select')).map(select => select.value),
-                        effects: Array.from(entry.querySelectorAll('.effect-select')).map(select => select.value)
+                        effects: Array.from(entry.querySelectorAll('.effect-select')).map(select => select.value),
+                        effectRanks: Array.from(entry.querySelectorAll('.effect-rank')).map(select => select.value)
                     }));
                     allEntries[category] = entries;
                 }
@@ -523,7 +540,7 @@
                     <div class="flex justify-between items-center mb-2">
                         <label class="block text-sm font-medium text-gray-300">Cues</label>
                         <button class="add-cue text-sm bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700 transition-colors">
-                            Add Cue (1 Point)
+                            Add Cue (${entry.closest('[id$="-section"]')?.id.includes('passive') ? '2' : '1'} Point${entry.closest('[id$="-section"]')?.id.includes('passive') ? 's' : ''})
                         </button>
                     </div>
                     <div class="cue-list space-y-2">
@@ -543,18 +560,24 @@
                     <div class="flex justify-between items-center mb-2">
                         <label class="block text-sm font-medium text-gray-300">Effects</label>
                         <button class="add-effect text-sm bg-green-600 text-white px-2 py-1 rounded hover:bg-green-700 transition-colors">
-                            Add Effect (1 Point)
+                            Add Effect (${entry.closest('[id$="-section"]')?.id.includes('passive') ? '2' : '1'} Point${entry.closest('[id$="-section"]')?.id.includes('passive') ? 's' : ''})
                         </button>
                     </div>
                     <div class="effect-list space-y-2">
                         ${effects.map(effect => `
                             <div class="effect-item relative">
-                                <select class="effect-select w-full bg-gray-700 text-white rounded p-2">
-                                    ${getEffectOptions()}
-                                </select>
-                                <button class="remove-effect absolute -right-6 top-2 text-red-500 hover:text-red-700">
-                                    <i class="fas fa-times"></i>
-                                </button>
+                                <div class="flex items-center gap-2">
+                                    <select class="effect-select w-full bg-gray-700 text-white rounded p-2">
+                                        ${getEffectOptions()}
+                                    </select>
+                                    ${entry.closest('[id$="-section"]')?.id.includes('passive') ? `
+                                    <select class="effect-rank bg-gray-700 text-white rounded p-2 w-24" title="Effect Rank">
+                                        ${Array.from({length: 10}, (_, i) => `<option value="${i+1}">R${i+1}</option>`).join('')}
+                                    </select>` : ''}
+                                    <button class="remove-effect text-red-500 hover:text-red-700">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
                             </div>
                         `).join('')}
                     </div>
@@ -679,12 +702,45 @@
             const toast = document.createElement('div');
             toast.className = `toast fixed bottom-4 right-4 px-6 py-3 rounded-lg text-white bg-${type}-600`;
             toast.textContent = message;
-            document.body.appendChild(toast);
             
             setTimeout(() => {
                 toast.style.animation = 'slideIn 0.3s ease-out reverse';
                 setTimeout(() => toast.remove(), 300);
             }, duration);
+        }
+
+        // Function to handle rank changes
+        function handleRankChange(selectElement) {
+            const currentRank = parseInt(selectElement.getAttribute('data-current-rank') || '1');
+            const newRank = parseInt(selectElement.value);
+            const rankDiff = newRank - currentRank;
+            
+            if (rankDiff > 0) {
+                const currentPoints = parseInt(localStorage.getItem('detailPoints') || '5');
+                const pointCost = 2 * rankDiff; // 2 points per rank increase
+                
+                if (currentPoints < pointCost) {
+                    alert('Not enough detail points available!');
+                    selectElement.value = currentRank;
+                    return;
+                }
+                
+                if (confirm(`Increasing rank by ${rankDiff} will cost ${pointCost} detail points. Continue?`)) {
+                    const category = selectElement.closest('[id$="-section"]').id.replace('-section', '');
+                    if (spendDetailPoints(pointCost, category)) {
+                        selectElement.setAttribute('data-current-rank', newRank);
+                        saveAllEntries();
+                    } else {
+                        selectElement.value = currentRank;
+                    }
+                } else {
+                    selectElement.value = currentRank;
+                }
+            } else {
+                // Decreasing rank is free
+                selectElement.setAttribute('data-current-rank', newRank);
+                saveAllEntries();
+            }
         }
     </script>
 </body>
